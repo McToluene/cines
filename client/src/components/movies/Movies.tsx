@@ -1,6 +1,7 @@
 import React, { useState, Fragment } from "react";
 import { getMovies } from "../../services/fakeMovieService";
 import { IMovie } from "../../models/IMovie";
+import Like from "../common/like/Like";
 
 const Movies: React.FC = () => {
   const [movies, setMovies] = useState(getMovies());
@@ -9,8 +10,15 @@ const Movies: React.FC = () => {
     setMovies(filteredMovies);
   };
 
-  const { length: count } = movies;
+  const handleLike = (movie: IMovie) => {
+    const moviesClone = [...movies];
+    const index = moviesClone.indexOf(movie);
+    moviesClone[index] = { ...moviesClone[index] };
+    moviesClone[index].liked = !moviesClone[index].liked;
+    setMovies(moviesClone);
+  };
 
+  const { length: count } = movies;
   let display: any;
   if (count === 0) {
     display = (
@@ -31,6 +39,7 @@ const Movies: React.FC = () => {
               <th>Stock</th>
               <th>Rate</th>
               <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -40,6 +49,9 @@ const Movies: React.FC = () => {
                 <td>{movie.genre.name}</td>
                 <td>{movie.numberInStock}</td>
                 <td>{movie.dailyRentalRate}</td>
+                <td>
+                  <Like liked={movie.liked} onLike={() => handleLike(movie)} />
+                </td>
                 <td>
                   <button
                     className="ui small red button"
