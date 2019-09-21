@@ -1,10 +1,16 @@
 import React, { useState, Fragment } from "react";
+
 import { getMovies } from "../../services/fakeMovieService";
 import { IMovie } from "../../models/IMovie";
 import Like from "../common/like/Like";
+import Pagination from "../common/pagination/Pagination";
+import { Paginate } from "../../utils/Paginate";
 
 const Movies: React.FC = () => {
   const [movies, setMovies] = useState(getMovies());
+  const [pageSize] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const handleButton = (movie: IMovie) => {
     const filteredMovies = movies.filter(m => m._id !== movie._id);
     setMovies(filteredMovies);
@@ -18,6 +24,10 @@ const Movies: React.FC = () => {
     setMovies(moviesClone);
   };
 
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   const { length: count } = movies;
   let display: any;
   if (count === 0) {
@@ -25,6 +35,7 @@ const Movies: React.FC = () => {
       <h3 className="ui header">There are no movies in the database</h3>
     );
   } else {
+    const paginatedMovies = Paginate(movies, currentPage, pageSize);
     display = (
       <Fragment>
         <h3 className="ui header">
@@ -43,7 +54,7 @@ const Movies: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {movies.map(movie => (
+            {paginatedMovies.map(movie => (
               <tr key={movie._id}>
                 <td>{movie.title}</td>
                 <td>{movie.genre.name}</td>
@@ -63,6 +74,18 @@ const Movies: React.FC = () => {
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={6}>
+                <Pagination
+                  currentPage={currentPage}
+                  itemsCount={count}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                />
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </Fragment>
     );
